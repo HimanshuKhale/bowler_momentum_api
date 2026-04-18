@@ -1,13 +1,13 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from schemas import BowlerMomentumResponse, ErrorResponse
+from schemas import BowlerMomentumRequest, BowlerMomentumResponse, ErrorResponse
 from services import bowler_momentum_summary
 
 app = FastAPI(
     title="Khel AI Bowler Momentum API",
-    version="1.0.0",
-    description="Standalone demo API for teaching bowling momentum calculation."
+    version="2.0.0",
+    description="Payload-based bowler momentum calculation API for Khel AI integration."
 )
 
 app.add_middleware(
@@ -18,7 +18,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 @app.get("/")
 def home():
     return {
@@ -27,21 +26,19 @@ def home():
         "health": "/health"
     }
 
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
 
-
-@app.get(
-    "/api/innings/{innings_id}/bowler/{player_id}/momentum/",
+@app.post(
+    "/api/bowler-momentum/",
     response_model=BowlerMomentumResponse,
     responses={404: {"model": ErrorResponse}},
 )
-def get_bowler_momentum(innings_id: int, player_id: int):
-    result = bowler_momentum_summary(innings_id=innings_id, player_id=player_id)
+def calculate_momentum(payload: BowlerMomentumRequest):
+    result = bowler_momentum_summary(payload.model_dump())
 
     if result is None:
-        raise HTTPException(status_code=404, detail="No demo data found for this bowler in this innings")
+        raise HTTPException(status_code=404, detail="No ball events provided")
 
     return result

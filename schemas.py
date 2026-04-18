@@ -1,4 +1,23 @@
 from pydantic import BaseModel, Field
+from typing import List
+
+
+class BallEventInput(BaseModel):
+    over_number: int
+    ball_number: int
+    runs_off_bat: int
+    extras: int
+    extra_type: str
+    is_legal_delivery: bool
+    wicket_fell: bool
+    wicket_type: str
+
+
+class BowlerMomentumRequest(BaseModel):
+    innings_id: int = Field(..., description="Selected innings ID")
+    player_id: int = Field(..., description="Selected bowler/player ID")
+    bowler_name: str = Field(..., description="Bowler name")
+    ball_events: List[BallEventInput] = Field(..., description="Raw ball events for this bowler")
 
 
 class BowlerMomentumResponse(BaseModel):
